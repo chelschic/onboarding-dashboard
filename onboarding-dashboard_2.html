@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding Dashboard — SpotOn</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--orange:#E8521A;--text:#1a1a1a;--muted:#6b7280;--faint:#9ca3af;--bg:#f9f9f8;--surface:#fff;--border:rgba(0,0,0,.09);--bordermed:rgba(0,0,0,.15);--radius:10px;--rsm:6px;--shadow:0 1px 3px rgba(0,0,0,.07)}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);font-size:14px;line-height:1.5;min-height:100vh}
+.hdr{background:var(--surface);border-bottom:1px solid var(--border);padding:0 2rem;display:flex;align-items:center;height:56px;gap:12px;position:sticky;top:0;z-index:100}
+.logo{width:30px;height:30px;background:var(--orange);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.logo svg{width:17px;height:17px;fill:white}
+.htitle{font-size:15px;font-weight:600}
+.hsep{color:var(--faint)}
+.hsub{font-size:12px;color:var(--muted)}
+.sp{flex:1}
+.asof{font-size:11px;color:var(--faint)}
+.btn{font-size:12px;font-weight:500;padding:6px 14px;border-radius:var(--rsm);border:1px solid var(--bordermed);background:var(--surface);color:var(--text);cursor:pointer}
+.btn:hover{background:var(--bg)}
+.bto{background:var(--orange);color:#fff;border-color:var(--orange)}
+.bto:hover{background:#d14717}
+.page{max-width:1500px;margin:0 auto;padding:1.25rem 2rem 3rem}
+.setup{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:2rem;max-width:560px;margin:3rem auto;box-shadow:var(--shadow)}
+.setup h2{font-size:16px;font-weight:600;margin-bottom:8px}
+.setup p{font-size:13px;color:var(--muted);line-height:1.6;margin-bottom:14px}
+.steps{background:#f9fafb;border-radius:var(--rsm);padding:1rem 1.25rem;margin-bottom:14px;font-size:12px;color:var(--muted);line-height:2.2;border:1px solid var(--border)}
+.steps strong{color:var(--text)}
+.setup label{font-size:12px;font-weight:600;color:var(--muted);display:block;margin-bottom:5px}
+.setup input{width:100%;font-size:13px;padding:9px 11px;border:1px solid var(--bordermed);border-radius:var(--rsm);margin-bottom:5px}
+.setup small{font-size:11px;color:var(--faint);display:block;margin-bottom:14px}
+.loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:5rem 2rem;gap:16px}
+.spin{width:32px;height:32px;border:2.5px solid var(--bordermed);border-top-color:var(--orange);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.err{background:#fff5f5;border:1px solid #fecaca;border-radius:var(--radius);padding:1rem 1.25rem;color:#991b1b;font-size:13px;margin-bottom:1.25rem;line-height:1.7}
+.pills{display:flex;gap:7px;flex-wrap:wrap;margin-bottom:1.125rem}
+.pill{font-size:12px;font-weight:500;padding:5px 11px;border-radius:20px;border:1px solid transparent;cursor:pointer;white-space:nowrap;display:flex;align-items:center;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
+.p-all{background:#f3f4f6;color:#374151;border-color:#e5e7eb}
+.p-red{background:#fef2f2;color:#991b1b;border-color:#fecaca}
+.p-amb{background:#fffbeb;color:#92400e;border-color:#fde68a}
+.p-gry{background:#f9fafb;color:#4b5563;border-color:#e5e7eb}
+.p-blu{background:#eff6ff;color:#1e40af;border-color:#bfdbfe}
+.p-pur{background:#f5f3ff;color:#5b21b6;border-color:#ddd6fe}
+.pill.active{box-shadow:0 0 0 2px currentColor}
+.cnt{font-size:11px;background:rgba(0,0,0,.1);border-radius:10px;padding:1px 6px}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-bottom:1.125rem}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem;box-shadow:var(--shadow)}
+.sacc{border-top:3px solid var(--orange)}
+.slbl{font-size:10px;color:var(--muted);font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px}
+.sval{font-size:24px;font-weight:700;line-height:1}
+.shint{font-size:10px;color:var(--faint);margin-top:3px}
+.charts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1.125rem}
+.cc{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:.875rem 1rem;box-shadow:var(--shadow)}
+.clbl{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px}
+.ctrls{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.ctrls select,.srch{font-size:12px;padding:6px 10px;border-radius:var(--rsm);border:1px solid var(--bordermed);background:var(--surface);color:var(--text)}
+.srch{width:200px}
+.rcnt{font-size:11px;color:var(--faint)}
+.twrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);box-shadow:var(--shadow);overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;padding:8px 10px;text-align:left;border-bottom:1px solid var(--border);background:#f9fafb;cursor:pointer;user-select:none;white-space:nowrap}
+th:hover{color:var(--text)}
+td{padding:8px 10px;border-bottom:1px solid var(--border);vertical-align:top}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:#fafafa}
+.sa{opacity:.4;font-size:9px;margin-left:2px}
+.badge{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;display:inline-block;white-space:nowrap}
+.bred{background:#fef2f2;color:#991b1b}
+.bamb{background:#fffbeb;color:#92400e}
+.bgrn{background:#f0fdf4;color:#166534}
+.bblu{background:#eff6ff;color:#1e40af}
+.bpur{background:#f5f3ff;color:#5b21b6}
+.bgry{background:#f3f4f6;color:#4b5563}
+.bora{background:#fff7ed;color:#9a3412}
+.flags{display:flex;gap:3px;flex-wrap:wrap}
+.upd{font-size:11px;color:var(--muted);max-width:260px;white-space:normal;line-height:1.4}
+.empty{text-align:center;padding:3rem;color:var(--muted);font-size:13px}
+.foot{font-size:11px;color:var(--faint);margin-top:8px;display:flex;gap:12px}
+.foot a{color:var(--faint)}
+@media(max-width:1000px){.charts{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.charts{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}.page{padding:1rem}}
+</style>
+</head>
+<body>
+<header class="hdr">
+  <div class="logo"><svg viewBox="0 0 20 20"><path d="M10 2L2 7v6l8 5 8-5V7L10 2zm0 2.2l6 3.75v4.1L10 15.8 4 12.05V7.95L10 4.2z"/></svg></div>
+  <span class="htitle">Onboarding Dashboard</span><span class="hsep">·</span><span class="hsub">Restaurant Implementation</span>
+  <div class="sp"></div>
+  <span class="asof" id="asof"></span>
+  <button class="btn" onclick="loadData()" id="rbtn">↻ Refresh</button>
+</header>
+<div class="page">
+
+<div id="setup" style="display:none">
+  <div class="setup">
+    <h2>One-time setup needed</h2>
+    <p>Your Google Sheet needs to be published once so the dashboard can read it in the browser. This takes about 60 seconds.</p>
+    <div class="steps">
+      <strong>Do this once:</strong><br>
+      1. Open your sheet: <a href="https://docs.google.com/spreadsheets/d/1A0XfPZMlC4euxpuzA0rAWJpNm5kDQbx_tzIZh6MGGak/edit" target="_blank" style="color:#E8521A">OS DASHBOARD ↗</a><br>
+      2. Click <strong>File → Share → Publish to web</strong><br>
+      3. Sheet: <strong>OS DASHBOARD</strong> &nbsp;·&nbsp; Format: <strong>CSV</strong><br>
+      4. Click <strong>Publish</strong>, confirm<br>
+      5. Copy the URL and paste below
+    </div>
+    <label>Published CSV URL</label>
+    <input type="text" id="urlInput" placeholder="https://docs.google.com/spreadsheets/d/.../pub?...output=csv">
+    <small>Saved in your browser. Each team member pastes it once.</small>
+    <button class="btn bto" onclick="saveAndLoad()" style="width:100%">Connect &amp; Load →</button>
+  </div>
+</div>
+
+<div id="loading" style="display:none">
+  <div class="loading"><div class="spin"></div><div id="llbl" style="font-size:13px;color:var(--muted)">Loading your cases…</div></div>
+</div>
+
+<div id="errbox" class="err" style="display:none"></div>
+
+<div id="main" style="display:none">
+  <div class="pills">
+    <span class="pill p-all active" onclick="setFlag('all',this)">All cases <span class="cnt" id="ca">0</span></span>
+    <span class="pill p-red" onclick="setFlag('overdue',this)"><span class="dot" style="background:#ef4444"></span>Install overdue <span class="cnt" id="co">0</span></span>
+    <span class="pill p-amb" onclick="setFlag('soon',this)"><span class="dot" style="background:#f59e0b"></span>Install ≤14 days <span class="cnt" id="cs">0</span></span>
+    <span class="pill p-pur" onclick="setFlag('nonworkable',this)">Non-workable <span class="cnt" id="cnw">0</span></span>
+    <span class="pill p-blu" onclick="setFlag('sequential',this)">Sequential expansion <span class="cnt" id="cse">0</span></span>
+    <span class="pill p-gry" onclick="setFlag('nomenu',this)">No menu build date <span class="cnt" id="cnm">0</span></span>
+    <span class="pill p-red" onclick="setFlag('old',this)">90+ days old <span class="cnt" id="cold">0</span></span>
+  </div>
+
+  <div class="stats">
+    <div class="stat sacc"><div class="slbl">Total open</div><div class="sval" id="st">—</div></div>
+    <div class="stat"><div class="slbl">Install overdue</div><div class="sval" id="so">—</div><div class="shint">Install date passed</div></div>
+    <div class="stat"><div class="slbl">Install ≤14 days</div><div class="sval" id="ss">—</div><div class="shint">Coming up fast</div></div>
+    <div class="stat"><div class="slbl">Non-workable</div><div class="sval" id="snw">—</div><div class="shint">Backlog status</div></div>
+    <div class="stat"><div class="slbl">Sequential</div><div class="sval" id="sse">—</div><div class="shint">Expansion cases</div></div>
+    <div class="stat"><div class="slbl">Avg age</div><div class="sval" id="saa">—</div><div class="shint">Days open</div></div>
+  </div>
+
+  <div class="charts">
+    <div class="cc"><div class="clbl">Cases by owner (top 10)</div><div style="position:relative;height:190px"><canvas id="cOwner" role="img" aria-label="Cases by owner">Cases by owner</canvas></div></div>
+    <div class="cc"><div class="clbl">Cases by status</div><div style="position:relative;height:190px"><canvas id="cStatus" role="img" aria-label="Cases by status">Cases by status</canvas></div></div>
+    <div class="cc"><div class="clbl">Cases by age</div><div style="position:relative;height:190px"><canvas id="cAge" role="img" aria-label="Cases by age">Cases by age</canvas></div></div>
+  </div>
+
+  <div class="ctrls">
+    <input class="srch" type="text" placeholder="Search account or case #…" oninput="render()" id="srch">
+    <select id="fo" onchange="render()"><option value="">All owners</option></select>
+    <select id="fs" onchange="render()"><option value="">All statuses</option></select>
+    <select id="fp" onchange="render()"><option value="">All service plans</option></select>
+    <select id="fa" onchange="render()">
+      <option value="">All ages</option>
+      <option value="180">180+ days</option>
+      <option value="90">90+ days</option>
+      <option value="60">60+ days</option>
+      <option value="30">30+ days</option>
+    </select>
+    <div class="sp"></div>
+    <span class="rcnt" id="rcnt"></span>
+    <button class="btn" onclick="exportCSV()">Export CSV</button>
+  </div>
+
+  <div class="twrap">
+    <table><thead><tr id="thead"></tr></thead><tbody id="tbody"></tbody></table>
+  </div>
+  <div class="foot">
+    <span>Data from Google Sheet</span>
+    <a href="#" onclick="clearSheet()">Change sheet URL</a>
+    <div class="sp"></div>
+  </div>
+</div>
+</div>
+
+<script>
+const SID='1A0XfPZMlC4euxpuzA0rAWJpNm5kDQbx_tzIZh6MGGak', GID='207968571';
+const HARDCODED_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vRI5y33ILRdfpbI7BwLlbE1akxpDucuMhC3Efi3K4etCzwawShqkc0Fy3V6lWdLbDE9AOf0t-GMEI3-/pub?gid=207968571&single=true&output=csv";
+const C={n:0,a:1,st:2,sub:3,own:4,plan:5,upd:6,cmt:7,age:8,inst:9,menu:10,bk:11,bksub:12,bkdt:13};
+const DCOLS=['Case #','Account','Status','Sub Status','Owner','Service Plan','Install Date','Menu Build','Age (Days)','Backlog','Latest Update','Flags'];
+const CLR=['#E8521A','#378ADD','#1D9E75','#7F77DD','#d97706','#db2777','#65a30d','#0891b2','#7c3aed','#dc2626'];
+let D=[],flag='all',sc=8,sd=-1,ch1,ch2,ch3;
+
+const getUrl=()=>localStorage.getItem('os_url')||HARDCODED_URL;
+function saveAndLoad(){
+  const u=document.getElementById('urlInput').value.trim();
+  if(!u||!u.includes('docs.google.com')){alert('Paste a valid Google Sheets published CSV URL.');return;}
+  localStorage.setItem('os_url',u);
+  document.getElementById('setup').style.display='none';
+  loadData();
+}
+function clearSheet(){localStorage.removeItem('os_url');location.reload();}
+
+function parseCSV(t){
+  return t.trim().split(/\r?\n/).slice(1).filter(l=>l.trim()).map(l=>{
+    const c=[];let cur='',q=false;
+    for(let i=0;i<l.length;i++){const ch=l[i];if(ch==='"'){q=!q;}else if(ch===','&&!q){c.push(cur.trim());cur='';}else{cur+=ch;}}
+    c.push(cur.trim());return c;
+  });
+}
+
+function flags(r){
+  const f=[],now=new Date();
+  const inst=r[C.inst]?new Date(r[C.inst]):null;
+  const age=parseFloat(r[C.age])||0;
+  const bk=(r[C.bk]||'').toLowerCase(),bks=(r[C.bksub]||'').toLowerCase();
+  if(inst&&!isNaN(inst)&&inst<now)f.push('overdue');
+  else if(inst&&!isNaN(inst)&&(inst-now)/86400000<=14)f.push('soon');
+  if(bk.includes('non-workable')||bk.includes('non workable'))f.push('nonworkable');
+  if(bks.includes('sequential'))f.push('sequential');
+  if(!r[C.menu]||!r[C.menu].trim())f.push('nomenu');
+  if(age>=90)f.push('old');
+  return f;
+}
+
+function filt(){
+  const o=document.getElementById('fo').value,s=document.getElementById('fs').value,
+        p=document.getElementById('fp').value,a=parseInt(document.getElementById('fa').value)||0,
+        q=(document.getElementById('srch').value||'').toLowerCase();
+  return D.filter(r=>{
+    const fl=flags(r);
+    if(flag!=='all'&&!fl.includes(flag))return false;
+    if(o&&r[C.own]!==o)return false;
+    if(s&&r[C.st]!==s)return false;
+    if(p&&r[C.plan]!==p)return false;
+    if(a&&(parseFloat(r[C.age])||0)<a)return false;
+    if(q&&!((r[C.n]||'').toLowerCase().includes(q)||(r[C.a]||'').toLowerCase().includes(q)))return false;
+    return true;
+  });
+}
+
+function setFlag(f,el){flag=f;document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));el.classList.add('active');render();}
+function sortBy(i){if(sc===i)sd*=-1;else{sc=i;sd=1;}render();}
+
+function stBadge(s){
+  if(!s)return'—';const sl=s.toLowerCase();
+  if(sl.includes('installation'))return`<span class="badge bora">${s}</span>`;
+  if(sl.includes('onboard'))return`<span class="badge bblu">${s}</span>`;
+  if(sl.includes('menu'))return`<span class="badge bpur">${s}</span>`;
+  if(sl.includes('pre-install'))return`<span class="badge bamb">${s}</span>`;
+  return`<span class="badge bgry">${s}</span>`;
+}
+
+function flBadges(fl){
+  const m={overdue:'<span class="badge bred">Overdue</span>',soon:'<span class="badge bamb">≤14d</span>',nonworkable:'<span class="badge bpur">Non-workable</span>',sequential:'<span class="badge bblu">Sequential</span>',nomenu:'<span class="badge bgry">No menu date</span>',old:'<span class="badge bred">90d+</span>'};
+  return`<div class="flags">${fl.map(f=>m[f]||'').join('')}</div>`;
+}
+
+function fd(d){if(!d||!d.trim())return'<span style="color:#d1d5db">—</span>';const dt=new Date(d);return isNaN(dt)?d:dt.toLocaleDateString('en-US',{month:'short',day:'numeric'});}
+function tr(s,n){if(!s)return'—';return s.length>n?s.slice(0,n)+'…':s;}
+
+function render(){
+  const SM=[C.n,C.a,C.st,C.sub,C.own,C.plan,C.inst,C.menu,C.age,C.bk,C.upd,-1];
+  let data=filt();
+  data=[...data].sort((a,b)=>{
+    const ki=SM[sc];
+    if(ki===-1){const af=flags(a).join(''),bf=flags(b).join('');return af<bf?-sd:af>bf?sd:0;}
+    let av=a[ki]||'',bv=b[ki]||'';
+    if(!isNaN(av)&&!isNaN(bv)&&av!==''&&bv!==''){av=parseFloat(av);bv=parseFloat(bv);}
+    return av<bv?-sd:av>bv?sd:0;
+  });
+  document.getElementById('thead').innerHTML=DCOLS.map((c,i)=>`<th onclick="sortBy(${i})">${c}<span class="sa">${sc===i?(sd>0?'↑':'↓'):'↕'}</span></th>`).join('');
+  const tb=document.getElementById('tbody');
+  if(!data.length){tb.innerHTML='<tr><td colspan="12"><div class="empty">No cases match your filters.</div></td></tr>';document.getElementById('rcnt').textContent='0 cases';return;}
+  tb.innerHTML=data.map(r=>{
+    const fl=flags(r),age=Math.round(parseFloat(r[C.age])||0);
+    const as=age>=90?'color:#991b1b;font-weight:600':age>=60?'color:#92400e':'';
+    const bk=[r[C.bk],r[C.bksub]].filter(Boolean).join(' · ');
+    return`<tr>
+      <td style="font-weight:600;color:var(--orange);white-space:nowrap">${r[C.n]||'—'}</td>
+      <td style="max-width:155px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${(r[C.a]||'').replace(/"/g,'')}">${r[C.a]||'—'}</td>
+      <td>${stBadge(r[C.st])}</td>
+      <td style="font-size:11px;color:var(--muted);white-space:nowrap">${r[C.sub]||'—'}</td>
+      <td style="font-size:11px;white-space:nowrap">${r[C.own]||'—'}</td>
+      <td style="font-size:11px;white-space:nowrap">${r[C.plan]||'—'}</td>
+      <td style="white-space:nowrap">${fd(r[C.inst])}</td>
+      <td style="white-space:nowrap">${fd(r[C.menu])}</td>
+      <td style="${as}">${age}</td>
+      <td style="font-size:10px;color:var(--muted);white-space:nowrap">${bk||'—'}</td>
+      <td><div class="upd">${tr(r[C.upd],80)}</div></td>
+      <td>${fl.length?flBadges(fl):''}</td>
+    </tr>`;
+  }).join('');
+  document.getElementById('rcnt').textContent=`${data.length} case${data.length!==1?'s':''}`;
+}
+
+function updateStats(){
+  let ov=0,so=0,nw=0,seq=0,tot=0;
+  D.forEach(r=>{const fl=flags(r);if(fl.includes('overdue'))ov++;if(fl.includes('soon'))so++;if(fl.includes('nonworkable'))nw++;if(fl.includes('sequential'))seq++;tot+=parseFloat(r[C.age])||0;});
+  const old90=D.filter(r=>(parseFloat(r[C.age])||0)>=90).length;
+  const nm=D.filter(r=>!r[C.menu]||!r[C.menu].trim()).length;
+  document.getElementById('st').textContent=D.length;
+  document.getElementById('so').textContent=ov;
+  document.getElementById('ss').textContent=so;
+  document.getElementById('snw').textContent=nw;
+  document.getElementById('sse').textContent=seq;
+  document.getElementById('saa').textContent=D.length?Math.round(tot/D.length):'—';
+  document.getElementById('ca').textContent=D.length;
+  document.getElementById('co').textContent=ov;
+  document.getElementById('cs').textContent=so;
+  document.getElementById('cnw').textContent=nw;
+  document.getElementById('cse').textContent=seq;
+  document.getElementById('cnm').textContent=nm;
+  document.getElementById('cold').textContent=old90;
+}
+
+function updateFilters(){
+  const own=[...new Set(D.map(r=>r[C.own]).filter(Boolean))].sort();
+  const sts=[...new Set(D.map(r=>r[C.st]).filter(Boolean))].sort();
+  const pls=[...new Set(D.map(r=>r[C.plan]).filter(Boolean))].sort();
+  document.getElementById('fo').innerHTML='<option value="">All owners</option>'+own.map(o=>`<option>${o}</option>`).join('');
+  document.getElementById('fs').innerHTML='<option value="">All statuses</option>'+sts.map(s=>`<option>${s}</option>`).join('');
+  document.getElementById('fp').innerHTML='<option value="">All service plans</option>'+pls.map(p=>`<option>${p}</option>`).join('');
+}
+
+function renderCharts(){
+  function bar(id,lbl,vals,ex){if(ex)ex.destroy();return new Chart(document.getElementById(id),{type:'bar',data:{labels:lbl,datasets:[{data:vals,backgroundColor:CLR.slice(0,lbl.length),borderRadius:3}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{font:{size:9},maxRotation:40}},y:{ticks:{stepSize:1,font:{size:9}},beginAtZero:true}}}});}
+  function donut(id,lbl,vals,ex){if(ex)ex.destroy();return new Chart(document.getElementById(id),{type:'doughnut',data:{labels:lbl,datasets:[{data:vals,backgroundColor:CLR.slice(0,lbl.length)}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'right',labels:{font:{size:9},boxWidth:9,padding:5}}}}});}
+  const om={};D.forEach(r=>{const o=r[C.own]||'Unknown';om[o]=(om[o]||0)+1;});
+  const t10=Object.entries(om).sort((a,b)=>b[1]-a[1]).slice(0,10);
+  ch1=bar('cOwner',t10.map(e=>e[0]),t10.map(e=>e[1]),ch1);
+  const sm={};D.forEach(r=>{const s=r[C.st]||'Unknown';sm[s]=(sm[s]||0)+1;});
+  ch2=donut('cStatus',Object.keys(sm),Object.values(sm),ch2);
+  const bk={'0–30d':0,'30–60d':0,'60–90d':0,'90–180d':0,'180d+':0};
+  D.forEach(r=>{const a=parseFloat(r[C.age])||0;if(a<30)bk['0–30d']++;else if(a<60)bk['30–60d']++;else if(a<90)bk['60–90d']++;else if(a<180)bk['90–180d']++;else bk['180d+']++;});
+  ch3=bar('cAge',Object.keys(bk),Object.values(bk),ch3);
+}
+
+function exportCSV(){
+  const data=filt();if(!data.length)return;
+  const h=['Case Number','Account Name','Status','Sub Status','Onboarding Resource','Service Plan','Latest Update','Latest Case Comments','Age (In Days)','Install Date','Menu Build Date','Backlog Status','Backlog Sub Status','Backlog Status Change Date','Flags'];
+  const rows=[h.join(','),...data.map(r=>[...r.slice(0,14),flags(r).join('; ')].map(v=>`"${(v||'').toString().replace(/"/g,'""')}"`).join(','))];
+  const b=new Blob([rows.join('\n')],{type:'text/csv'});
+  const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=`onboarding-${new Date().toISOString().split('T')[0]}.csv`;a.click();
+}
+
+async function tryUrl(url){
+  const r=await fetch(url+(url.includes('?')?'&':'?')+'_='+Date.now());
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const t=await r.text();
+  if(!t.trim()||t.startsWith('<!'))throw new Error('Not CSV');
+  return t;
+}
+
+async function loadData(){
+  const stored=getUrl();
+  document.getElementById('errbox').style.display='none';
+  document.getElementById('main').style.display='none';
+  document.getElementById('setup').style.display='none';
+  document.getElementById('loading').style.display='block';
+  document.getElementById('rbtn').disabled=true;
+  document.getElementById('llbl').textContent='Loading your cases…';
+
+  const urls=stored?[stored,HARDCODED_URL]:[HARDCODED_URL,
+    `https://docs.google.com/spreadsheets/d/${SID}/export?format=csv&gid=${GID}`
+  ];
+
+  let text=null;
+  for(const u of urls){try{text=await tryUrl(u);break;}catch(e){}}
+
+  if(!text){
+    document.getElementById('loading').style.display='none';
+    document.getElementById('setup').style.display='block';
+    document.getElementById('rbtn').disabled=false;
+    return;
+  }
+
+  try{
+    D=parseCSV(text);
+    if(!D.length)throw new Error('No data rows found.');
+    document.getElementById('asof').textContent='Updated '+new Date().toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});
+    updateStats();updateFilters();renderCharts();render();
+    document.getElementById('loading').style.display='none';
+    document.getElementById('main').style.display='block';
+  }catch(e){
+    document.getElementById('loading').style.display='none';
+    const eb=document.getElementById('errbox');
+    eb.style.display='block';
+    eb.innerHTML=`<strong>Error:</strong> ${e.message}<br><br><button class="btn" onclick="clearSheet()">Reset</button>`;
+  }finally{document.getElementById('rbtn').disabled=false;}
+}
+
+loadData();
+</script>
+</body>
+</html>
