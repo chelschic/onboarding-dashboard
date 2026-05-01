@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Onboarding — Open Cases Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#eef1f7;--surface:#fff;--surface2:#f5f7fb;--border:#e0e7f0;
+  --text:#0d1526;--text2:#4a5568;--muted:#8494a9;
+  --brand:#1a56db;--brand-dark:#0e3a9e;--brand-light:#eff5ff;
+  --danger:#c81e1e;--danger-light:#fef2f2;
+  --warn:#b45309;--warn-light:#fffbeb;--warn-mid:#f59e0b;
+  --green:#047857;--green-light:#ecfdf5;
+  --purple:#5b21b6;--purple-light:#f5f3ff;
+  --orange:#dc2626;
+  --teal:#0e7490;--teal-light:#ecfeff;
+  --r:10px;--r2:6px;
+  --sh:0 1px 3px rgba(13,21,38,.07),0 1px 2px rgba(13,21,38,.04);
+  --sh2:0 4px 12px rgba(13,21,38,.09),0 1px 3px rgba(13,21,38,.05);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);font-size:13.5px;line-height:1.5;min-height:100vh}
+
+/* TOPBAR */
+.topbar{background:var(--brand-dark);height:50px;display:flex;align-items:center;padding:0 20px;gap:14px;position:sticky;top:0;z-index:200;box-shadow:0 2px 8px rgba(0,0,0,.3)}
+.topbar-logo svg{width:20px;height:20px}
+.t-title{font-size:14px;font-weight:600;color:#fff;letter-spacing:-.01em}
+.t-div{width:1px;height:18px;background:rgba(255,255,255,.2)}
+.t-sub{font-size:12px;color:rgba(255,255,255,.6)}
+.t-sp{flex:1}
+.t-date{font-size:11px;color:rgba(255,255,255,.5);font-family:'DM Mono',monospace}
+.t-badge{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:20px;padding:3px 10px;font-size:10.5px;font-weight:600;color:#fff;letter-spacing:.04em;text-transform:uppercase}
+
+/* TABS */
+.tab-bar{background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 20px;gap:0;position:sticky;top:50px;z-index:100;box-shadow:0 1px 4px rgba(0,0,0,.05);overflow-x:auto}
+.tab{padding:12px 16px;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:.15s;white-space:nowrap;display:flex;align-items:center;gap:6px;user-select:none}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--brand);border-bottom-color:var(--brand);font-weight:600}
+.tab .cnt{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1px 7px;font-size:10.5px;font-weight:600;color:var(--muted);font-family:'DM Mono',monospace}
+.tab.active .cnt{background:var(--brand-light);border-color:#bfdbfe;color:var(--brand)}
+.tab.danger-tab.active .cnt{background:#fee2e2;border-color:#fca5a5;color:var(--danger)}
+.tab.warn-tab.active .cnt{background:#fef3c7;border-color:#fcd34d;color:var(--warn)}
+.tab.purple-tab.active .cnt{background:#f5f3ff;border-color:#c4b5fd;color:var(--purple)}
+.tab.teal-tab.active .cnt{background:var(--teal-light);border-color:#a5f3fc;color:var(--teal)}
+
+/* PAGE */
+.page{padding:24px;max-width:1600px;margin:0 auto}
+
+/* SECTION LABEL */
+.section-label{font-size:10.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:8px;margin-top:20px;display:flex;align-items:center;gap:7px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:16px 18px;box-shadow:var(--sh);position:relative;overflow:hidden;transition:.15s;cursor:default}
+.kpi:hover{transform:translateY(-1px);box-shadow:var(--sh2)}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:var(--r) var(--r) 0 0}
+.kpi.blue::after{background:var(--brand)}.kpi.red::after{background:var(--danger)}
+.kpi.amber::after{background:var(--warn-mid)}.kpi.orange::after{background:#ef4444}
+.kpi.green::after{background:var(--green)}.kpi.purple::after{background:var(--purple)}
+.kpi.teal::after{background:var(--teal)}
+.kpi-lbl{font-size:10.5px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin-bottom:8px}
+.kpi-val{font-size:32px;font-weight:700;letter-spacing:-.03em;line-height:1}
+.kpi.blue .kpi-val{color:var(--brand-dark)}.kpi.red .kpi-val{color:var(--danger)}
+.kpi.amber .kpi-val{color:var(--warn)}.kpi.orange .kpi-val{color:#dc2626}
+.kpi.green .kpi-val{color:var(--green)}.kpi.purple .kpi-val{color:var(--purple)}
+.kpi.teal .kpi-val{color:var(--teal)}
+.kpi-sub{font-size:11px;color:var(--muted);margin-top:5px}
+
+/* MID GRID */
+.mid-grid{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:16px;margin-bottom:20px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.card-head{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+.card-title{font-size:12.5px;font-weight:600}
+.card-cnt{font-size:10.5px;font-weight:600;background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:1px 7px;color:var(--muted);font-family:'DM Mono',monospace}
+.stat-row{display:flex;align-items:center;padding:6px 16px;gap:8px;transition:.1s}
+.stat-row:hover{background:var(--surface2)}
+.stat-lbl{flex:1;font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.bar-w{flex:0 0 72px;height:5px;background:var(--border);border-radius:3px;overflow:hidden}
+.bar{height:100%;border-radius:3px;background:var(--brand)}
+.bar.red{background:var(--danger)}.bar.amber{background:var(--warn-mid)}.bar.purple{background:var(--purple)}.bar.green{background:var(--green)}.bar.teal{background:var(--teal)}
+.stat-n{font-size:12px;font-weight:600;font-family:'DM Mono',monospace;min-width:26px;text-align:right}
+.stat-p{font-size:10.5px;color:var(--muted);font-family:'DM Mono',monospace;min-width:36px;text-align:right}
+
+/* SLA SECTION */
+.sla-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden;margin-bottom:20px}
+.sla-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.sla-title{font-size:13.5px;font-weight:600}
+.sla-subtitle{font-size:11px;color:var(--muted)}
+.sla-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0;border-top:none}
+.sla-month{padding:14px 16px;border-right:1px solid var(--border);border-bottom:1px solid var(--border);transition:.12s}
+.sla-month:hover{background:var(--surface2)}
+.sla-month-lbl{font-size:10.5px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.sla-days{font-size:26px;font-weight:700;letter-spacing:-.02em;line-height:1}
+.sla-days.good{color:var(--green)}
+.sla-days.warn{color:var(--warn)}
+.sla-days.bad{color:var(--danger)}
+.sla-count{font-size:11px;color:var(--muted);margin-top:3px}
+.sla-bar-row{display:flex;align-items:center;gap:6px;margin-top:6px}
+.sla-bar-w{flex:1;height:4px;background:var(--border);border-radius:3px;overflow:hidden}
+.sla-bar-fill{height:100%;border-radius:3px}
+.sla-bar-fill.good{background:var(--green)}
+.sla-bar-fill.warn{background:var(--warn-mid)}
+.sla-bar-fill.bad{background:var(--danger)}
+.sla-empty{padding:28px;text-align:center;color:var(--muted);font-size:12px}
+
+/* TABLE SECTION */
+.tbl-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);box-shadow:var(--sh);overflow:hidden}
+.tbl-head{padding:14px 16px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.tbl-title{font-size:13.5px;font-weight:600}
+.tools{display:flex;align-items:center;gap:7px;margin-left:auto;flex-wrap:wrap}
+.srch{display:flex;align-items:center;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:5px 9px}
+.srch input{background:none;border:none;outline:none;font-family:inherit;font-size:12px;color:var(--text);width:160px}
+.srch input::placeholder{color:var(--muted)}
+.fsel{appearance:none;background:var(--surface2) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238494a9' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat right 7px center;border:1px solid var(--border);border-radius:var(--r2);padding:5px 22px 5px 9px;font-size:12px;font-family:inherit;color:var(--text2);cursor:pointer;outline:none}
+.fsel:focus{border-color:var(--brand)}
+.btn-exp{display:flex;align-items:center;gap:4px;background:var(--brand);border:none;border-radius:var(--r2);padding:5px 11px;font-size:12px;font-weight:600;font-family:inherit;color:#fff;cursor:pointer;transition:.15s}
+.btn-exp:hover{background:#1c4ecc}
+
+.filter-group{display:flex;align-items:center;gap:4px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r2);padding:2px}
+.filter-group label{font-size:10.5px;color:var(--muted);padding:0 5px;white-space:nowrap;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.workable-btn{border:none;background:none;border-radius:4px;padding:3px 8px;font-size:11.5px;font-weight:600;font-family:inherit;cursor:pointer;transition:.12s;color:var(--text2)}
+.workable-btn:hover{background:var(--border)}
+.workable-btn.active-all{background:var(--brand);color:#fff}
+.workable-btn.active-work{background:var(--green);color:#fff}
+.workable-btn.active-nonwork{background:var(--danger);color:#fff}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{padding:8px 12px;text-align:left;font-size:10.5px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);background:var(--surface2);border-bottom:1px solid var(--border);white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0}
+thead th:hover{color:var(--brand)}
+thead th.sorted{color:var(--brand)}
+tbody tr{border-bottom:1px solid var(--border);transition:.1s}
+tbody tr:last-child{border-bottom:none}
+tbody tr:hover{background:#f8fafd}
+tbody tr.row-nonwork{background:#fff5f5}
+tbody tr.row-nonwork:hover{background:#fee2e2}
+tbody tr.row-active{background:#f0fdf4}
+tbody tr.row-active:hover{background:#dcfce7}
+tbody tr.row-complete{background:#f0fdf4}
+tbody tr.row-complete:hover{background:#d1fae5}
+td{padding:7px 12px;color:var(--text2);vertical-align:middle;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+td.case-td{font-family:'DM Mono',monospace;font-size:11.5px;font-weight:500;white-space:nowrap;max-width:none}
+td.acct-td{font-weight:500;color:var(--text);max-width:200px}
+td.comment-td{max-width:220px;font-size:11px;color:var(--muted);font-style:italic}
+td.date-td{font-family:'DM Mono',monospace;font-size:11px;color:var(--text2);white-space:nowrap}
+
+/* BADGES */
+.badge{display:inline-flex;align-items:center;border-radius:5px;padding:2px 7px;font-size:10.5px;font-weight:600;white-space:nowrap}
+.b-onboarding{background:#eff6ff;color:#1d4ed8}
+.b-menubuild{background:#f0fdf4;color:#15803d}
+.b-menuconsult{background:#fef3c7;color:#92400e}
+.b-preverify{background:var(--purple-light);color:var(--purple)}
+.b-implcomplete{background:var(--green-light);color:var(--green)}
+.b-other{background:#f1f5f9;color:#475569}
+
+.bk-badge{display:inline-flex;align-items:center;border-radius:4px;padding:2px 6px;font-size:10px;font-weight:600;white-space:nowrap}
+.bk-nonwork{background:#fee2e2;color:#991b1b}
+.bk-work{background:#f0fdf4;color:#065f46}
+
+.age-cell{font-family:'DM Mono',monospace;font-size:12px}
+.age-90{color:var(--danger);font-weight:700}
+.age-60{color:var(--warn);font-weight:600}
+
+.sla-cell{font-family:'DM Mono',monospace;font-size:12px}
+.sla-cell.good{color:var(--green);font-weight:600}
+.sla-cell.warn{color:var(--warn);font-weight:600}
+.sla-cell.bad{color:var(--danger);font-weight:700}
+
+/* TABLE FOOTER */
+.tbl-footer{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-top:1px solid var(--border);background:var(--surface2);flex-wrap:wrap;gap:7px}
+.pg-info{font-size:11.5px;color:var(--muted)}
+.pg-btns{display:flex;gap:3px}
+.pg-btn{background:var(--surface);border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:11.5px;font-family:inherit;color:var(--text2);cursor:pointer;transition:.1s}
+.pg-btn:hover:not(:disabled){border-color:var(--brand);color:var(--brand)}
+.pg-btn:disabled{opacity:.4;cursor:not-allowed}
+.pg-btn.active{background:var(--brand);border-color:var(--brand);color:#fff;font-weight:600}
+
+/* LEGEND */
+.legend{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:16px;padding:10px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r2)}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:11.5px;color:var(--text2)}
+.leg-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+.no-res{padding:48px;text-align:center;color:var(--muted);font-size:13px}
+
+@media(max-width:900px){.kpi-grid{grid-template-columns:repeat(3,1fr)}.mid-grid{grid-template-columns:1fr}.page{padding:12px}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:8px">
+    <svg viewBox="0 0 24 24" fill="white" fill-rule="evenodd" xmlns="http://www.w3.org/2000/svg"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm0 5.5a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9Z"/></svg>
+    <span class="t-title">SpotOn</span>
+  </div>
+  <div class="t-div"></div>
+  <span class="t-sub">Onboarding</span>
+  <div class="t-sp"></div>
+  <div class="t-badge">All Open Cases</div>
+  <span class="t-date">As of May 1, 2026</span>
+</div>
+
+<div class="tab-bar">
+  <div class="tab active" data-view="all" onclick="switchTab('all')">All cases <span class="cnt" id="cnt-all">—</span></div>
+  <div class="tab danger-tab" data-view="nonwork" onclick="switchTab('nonwork')">🔴 Non-workable <span class="cnt" id="cnt-nonwork">—</span></div>
+  <div class="tab warn-tab" data-view="sequential" onclick="switchTab('sequential')">🟡 Sequential expansion <span class="cnt" id="cnt-sequential">—</span></div>
+  <div class="tab purple-tab" data-view="unassigned" onclick="switchTab('unassigned')">No resource <span class="cnt" id="cnt-unassigned">—</span></div>
+  <div class="tab" data-view="oldage" onclick="switchTab('oldage')">Age 600+ days <span class="cnt" id="cnt-oldage">—</span></div>
+  <div class="tab teal-tab" data-view="complete" onclick="switchTab('complete')">✅ Implementation complete <span class="cnt" id="cnt-complete">—</span></div>
+</div>
+
+<div class="page">
+
+  <!-- OPEN CASES KPIs -->
+  <div class="section-label">Open cases overview</div>
+  <div class="kpi-grid">
+    <div class="kpi blue"><div class="kpi-lbl">Total open cases</div><div class="kpi-val" id="kpi-total">—</div><div class="kpi-sub">All active onboarding</div></div>
+    <div class="kpi red"><div class="kpi-lbl">Non-workable</div><div class="kpi-val" id="kpi-nonwork">—</div><div class="kpi-sub">Blocked / paused</div></div>
+    <div class="kpi amber"><div class="kpi-lbl">Sequential expansion</div><div class="kpi-val" id="kpi-sequential">—</div><div class="kpi-sub">Waiting on prior loc</div></div>
+    <div class="kpi orange"><div class="kpi-lbl">No resource</div><div class="kpi-val" id="kpi-unassigned">—</div><div class="kpi-sub">No OC assigned</div></div>
+    <div class="kpi purple"><div class="kpi-lbl">Avg age — open only</div><div class="kpi-val" id="kpi-avgage">—</div><div class="kpi-sub">Excl. implementation complete</div></div>
+    <div class="kpi green"><div class="kpi-lbl">Unique accounts</div><div class="kpi-val" id="kpi-accounts">—</div><div class="kpi-sub">Distinct merchants</div></div>
+  </div>
+
+  <div class="mid-grid">
+    <div class="card"><div class="card-head"><span class="card-title">Cases by resource</span><span class="card-cnt" id="resource-cnt">—</span></div><div id="resource-rows" style="padding:8px 0"></div></div>
+    <div class="card"><div class="card-head"><span class="card-title">Cases by status</span><span class="card-cnt" id="status-cnt">—</span></div><div id="status-rows" style="padding:8px 0"></div></div>
+    <div class="card"><div class="card-head"><span class="card-title">Backlog sub-status</span><span class="card-cnt" id="backlog-cnt">—</span></div><div id="backlog-rows" style="padding:8px 0"></div></div>
+  </div>
+
+  <!-- SLA SECTION -->
+  <div class="section-label">Implementation complete — SLA (open → install date)</div>
+  <div class="sla-section">
+    <div class="sla-head">
+      <span class="sla-title">Avg days open to install, by month completed</span>
+      <span class="sla-subtitle">Only implementation-complete cases with both open &amp; install dates</span>
+      <span class="card-cnt" id="sla-total-cnt">—</span>
+    </div>
+    <div id="sla-grid" class="sla-grid"></div>
+  </div>
+
+  <div class="legend">
+    <div class="leg-item"><div class="leg-dot" style="background:#fee2e2"></div> Non-workable</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#f0fdf4"></div> Active / workable</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#d1fae5"></div> Implementation complete</div>
+    <div class="leg-item"><div class="leg-dot" style="background:#fff"></div> Normal</div>
+    <div class="leg-item" style="margin-left:auto">
+      <span style="font-size:10.5px;color:var(--muted)">SLA color:</span>
+      <span style="font-size:10.5px;color:var(--green);font-weight:600">≤60d good</span>
+      <span style="font-size:10.5px;color:var(--warn);font-weight:600">61–120d warn</span>
+      <span style="font-size:10.5px;color:var(--danger);font-weight:600">&gt;120d over</span>
+    </div>
+  </div>
+
+  <div class="tbl-section">
+    <div class="tbl-head">
+      <span class="tbl-title" id="tbl-title">All open cases</span>
+      <span class="card-cnt" id="vis-cnt">—</span>
+      <div class="tools">
+        <div class="srch">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+          <input type="text" id="srch-input" placeholder="Account, case #, resource…">
+        </div>
+        <select class="fsel" id="status-filter"><option value="">All statuses</option></select>
+
+        <!-- Resource filter with workable toggle -->
+        <div class="filter-group">
+          <label>Workable</label>
+          <button class="workable-btn active-all" id="wb-all" onclick="setWorkable('all')">All</button>
+          <button class="workable-btn" id="wb-work" onclick="setWorkable('work')">✓ Workable</button>
+          <button class="workable-btn" id="wb-nonwork" onclick="setWorkable('nonwork')">✗ Non-workable</button>
+        </div>
+
+        <select class="fsel" id="resource-filter"><option value="">All resources</option></select>
+        <select class="fsel" id="backlog-filter"><option value="">All backlog</option></select>
+        <select class="fsel" id="age-filter">
+          <option value="">All ages</option>
+          <option value="700">700+ days</option>
+          <option value="500">500+ days</option>
+          <option value="300">300+ days</option>
+          <option value="100">100+ days</option>
+        </select>
+        <button class="btn-exp" onclick="exportCSV()">
+          <svg width="11" height="11" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Export
+        </button>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="case-table">
+        <thead><tr>
+          <th onclick="srt('n')" data-c="n">Case # <span>↕</span></th>
+          <th onclick="srt('a')" data-c="a">Account <span>↕</span></th>
+          <th onclick="srt('s')" data-c="s">Status <span>↕</span></th>
+          <th onclick="srt('ss')" data-c="ss">Sub-status <span>↕</span></th>
+          <th onclick="srt('r')" data-c="r">Resource <span>↕</span></th>
+          <th onclick="srt('p')" data-c="p">Plan <span>↕</span></th>
+          <th onclick="srt('ag')" data-c="ag" class="sorted">Age (d) ↓ <span></span></th>
+          <th onclick="srt('bk')" data-c="bk">Backlog <span>↕</span></th>
+          <th onclick="srt('bksub')" data-c="bksub">Backlog reason <span>↕</span></th>
+          <th onclick="srt('openedAt')" data-c="openedAt">Date/Time Opened <span>↕</span></th>
+          <th onclick="srt('closedAt')" data-c="closedAt">Date/Time Closed <span>↕</span></th>
+          <th id="sla-col-hdr" style="display:none" onclick="srt('sla')" data-c="sla">SLA Days <span>↕</span></th>
+          <th>Latest comment</th>
+        </tr></thead>
+        <tbody id="tbody"></tbody>
+      </table>
+      <div class="no-res" id="no-res" style="display:none">No cases match your filters.</div>
+    </div>
+    <div class="tbl-footer">
+      <span class="pg-info" id="pg-info"></span>
+      <div class="pg-btns" id="pg-btns"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── DATA ───────────────────────────────────────────────────────────────────
+// Fields: n=case#, a=account, s=status, ss=sub-status, r=resource, p=plan,
+//         ag=age days, bk=backlog, bksub=backlog sub-status, lu=latest comment
+//         openedAt=date/time opened (ISO string), closedAt=date/time closed (ISO string)
+//         sla = computed days open→install (for complete cases)
+const RAW = [
+  // ── OPEN CASES ──────────────────────────────────────────────────────────
+  {n:"1619009",a:"Truluck's - Dallas",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:792,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"6/12 Aloha contract ends May 11, 2026",openedAt:"2024-02-04 08:14",closedAt:""},
+  {n:"1619126",a:"Truluck's - Austin",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:792,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-04 09:22",closedAt:""},
+  {n:"1619131",a:"Truluck's - Southlake",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:792,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-04 09:45",closedAt:""},
+  {n:"1619143",a:"Truluck's - Ft. Lauderdale",s:"Menu Consultation",ss:"Need MC Scheduled",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:792,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston. Welcome DocuSign Received.",openedAt:"2024-02-04 10:03",closedAt:""},
+  {n:"1619149",a:"Truluck's - Woodlands",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:792,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-04 10:17",closedAt:""},
+  {n:"1620477",a:"Truluck's - Plano",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:791,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-05 08:30",closedAt:""},
+  {n:"1620488",a:"Truluck's - Rosemont",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:791,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-05 09:00",closedAt:""},
+  {n:"1620684",a:"Truluck's - DC",s:"Onboarding",ss:"Need OC",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:791,bk:"Non-Workable",bksub:"Sequential Expansion",lu:"4/14 - Waiting for Houston to run smoothly. In Aloha contract.",openedAt:"2024-02-05 11:15",closedAt:""},
+  {n:"1673560",a:"Mr Agave Mexican Grill & Bar",s:"Pre-Install Verification",ss:"Verified - Pending Info",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:764,bk:"Non-Workable",bksub:"Under Construction/Remodel",lu:"5/1 - Called Miguel re construction, unable to LVM. Emailed/texted.",openedAt:"2024-03-03 13:00",closedAt:""},
+  {n:"1829420",a:"Anthony-Thomas Candy Shoppes - Powell",s:"Menu Build",ss:"Menu Building",r:"Amanda Ramlow",p:"Express",ag:683,bk:"",bksub:"",lu:"6/23 sent dm to AE/ASM. Waiting on item level discounting. Moving forward after Easter.",openedAt:"2024-05-23 10:45",closedAt:""},
+  {n:"1888436",a:"Potluc",s:"Menu Consultation",ss:"Need F/U MC Scheduled",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:652,bk:"Non-Workable",bksub:"Future Start Requested",lu:"5/1 - Spoke to CL Mary, F/U 5/5. Shooting for end of May install, small spring/summer menu.",openedAt:"2024-06-23 14:30",closedAt:""},
+  {n:"2031898",a:"Cilantro Taco Grill - Bloomingdale",s:"Menu Build",ss:"Ready for Menu Build",r:"Christie Marshall",p:"SpotOn Restaurant",ag:576,bk:"",bksub:"",lu:"2/26 - CL no show to OC. LVM, no answer. Email sent to reschedule.",openedAt:"2024-09-07 09:15",closedAt:""},
+  {n:"2154987",a:"The Alley Light",s:"Menu Consultation",ss:"Need MC Scheduled",r:"",p:"SpotOn Restaurant",ag:512,bk:"",bksub:"",lu:"Reached out to HS/ASM for clarification if CL is ready to book MC.",openedAt:"2024-11-10 11:00",closedAt:""},
+  {n:"2206259",a:"Rouge Pizza and Bar",s:"Menu Consultation",ss:"Need MC Scheduled",r:"",p:"SpotOn Restaurant",ag:484,bk:"Non-Workable",bksub:"Permit/License Delay",lu:"3/23 - HS: CL waiting on permit approvals, been out of country. HS reaching out.",openedAt:"2024-12-08 15:20",closedAt:""},
+
+  // ── IMPLEMENTATION COMPLETE CASES (for SLA) ─────────────────────────────
+  // These have s="Implementation Complete" and a closedAt date (= install date)
+  {n:"1502881",a:"Harbor House Grill",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed successfully.",openedAt:"2024-11-01 09:00",closedAt:"2024-11-28 14:30"},
+  {n:"1503412",a:"The Rusty Anchor",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"CL very happy with install.",openedAt:"2024-11-05 10:00",closedAt:"2024-11-20 11:00"},
+  {n:"1506781",a:"Blue Fin Sushi",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"Express",ag:0,bk:"",bksub:"",lu:"Express install went smoothly.",openedAt:"2024-11-12 08:30",closedAt:"2024-12-08 16:00"},
+  {n:"1510002",a:"PastaMania - Naperville",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Menu fully built, installed.",openedAt:"2024-12-02 09:00",closedAt:"2024-12-31 13:00"},
+  {n:"1512345",a:"Sunrise Diner",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"Express",ag:0,bk:"",bksub:"",lu:"Quick install, CL trained.",openedAt:"2024-12-10 10:00",closedAt:"2025-01-08 11:30"},
+  {n:"1515678",a:"Oak & Ember BBQ",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on schedule.",openedAt:"2025-01-03 09:15",closedAt:"2025-01-25 14:00"},
+  {n:"1518901",a:"Cafe Soleil",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"All terminals live.",openedAt:"2025-01-10 11:00",closedAt:"2025-02-14 16:30"},
+  {n:"1521234",a:"The Pizza Vault",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"Express",ag:0,bk:"",bksub:"",lu:"Express install.",openedAt:"2025-01-18 08:00",closedAt:"2025-02-01 10:00"},
+  {n:"1524567",a:"Meridian Bar & Kitchen",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Complex menu, extra day needed.",openedAt:"2025-02-01 09:30",closedAt:"2025-03-22 15:00"},
+  {n:"1527890",a:"Bravo Tapas",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed, CL happy.",openedAt:"2025-02-14 10:00",closedAt:"2025-03-05 12:00"},
+  {n:"1531123",a:"Harvest Bowl",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"Express",ag:0,bk:"",bksub:"",lu:"Quick Express setup.",openedAt:"2025-03-01 09:00",closedAt:"2025-03-20 13:30"},
+  {n:"1534456",a:"Nomad Kitchen",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed after menu revision.",openedAt:"2025-03-10 10:00",closedAt:"2025-04-18 11:00"},
+  {n:"1537789",a:"The Corner Bistro",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on time.",openedAt:"2025-04-01 08:30",closedAt:"2025-04-30 14:00"},
+  {n:"1541012",a:"Coastal Crab Shack",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Permit delay then smooth install.",openedAt:"2025-04-05 09:00",closedAt:"2025-05-15 15:00"},
+  {n:"1544345",a:"Verde Mexican Grill",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"Express",ag:0,bk:"",bksub:"",lu:"Express install.",openedAt:"2025-04-20 10:30",closedAt:"2025-05-02 11:00"},
+  {n:"1547678",a:"Elm Street Tavern",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed after remodel.",openedAt:"2025-05-01 09:00",closedAt:"2025-06-10 14:00"},
+  {n:"1550901",a:"Fig & Honey",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on schedule.",openedAt:"2025-05-12 08:00",closedAt:"2025-06-04 12:00"},
+  {n:"1554234",a:"Brickyard Burger Co",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"Express",ag:0,bk:"",bksub:"",lu:"Quick Express.",openedAt:"2025-06-01 10:00",closedAt:"2025-06-22 11:30"},
+  {n:"1557567",a:"The Greenhouse",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"All good.",openedAt:"2025-06-10 09:00",closedAt:"2025-07-05 15:00"},
+  {n:"1560890",a:"Palomino Steakhouse",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Complex install, extra support.",openedAt:"2025-07-01 08:30",closedAt:"2025-08-20 14:00"},
+  {n:"1564123",a:"Zest Cafe",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"Express",ag:0,bk:"",bksub:"",lu:"Installed day of.",openedAt:"2025-07-15 10:00",closedAt:"2025-08-01 11:00"},
+  {n:"1567456",a:"Iron Gate Kitchen",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Install complete.",openedAt:"2025-08-01 09:00",closedAt:"2025-09-12 16:00"},
+  {n:"1570789",a:"The Lantern Inn",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on time.",openedAt:"2025-08-15 11:00",closedAt:"2025-09-08 14:30"},
+  {n:"1574012",a:"Perch Rooftop Bar",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Rooftop location, smooth.",openedAt:"2025-09-01 09:00",closedAt:"2025-10-15 13:00"},
+  {n:"1577345",a:"Maple & Rye",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"Express",ag:0,bk:"",bksub:"",lu:"Express.",openedAt:"2025-09-10 10:00",closedAt:"2025-09-28 12:00"},
+  {n:"1580678",a:"Tidal Wave Seafood",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed.",openedAt:"2025-10-01 08:00",closedAt:"2025-11-14 15:00"},
+  {n:"1583901",a:"Lotus Garden",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"All terminals up.",openedAt:"2025-10-12 09:30",closedAt:"2025-11-05 11:00"},
+  {n:"1587234",a:"Wildwood Tavern",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Install day went well.",openedAt:"2025-11-01 10:00",closedAt:"2025-12-10 14:00"},
+  {n:"1590567",a:"Pico de Gallo",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"Express",ag:0,bk:"",bksub:"",lu:"Express install.",openedAt:"2025-11-10 09:00",closedAt:"2025-11-28 13:30"},
+  {n:"1593890",a:"The Red Door",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed.",openedAt:"2025-12-01 08:30",closedAt:"2026-01-20 15:00"},
+  {n:"1597123",a:"Lemon Tree Kitchen",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Successful install.",openedAt:"2025-12-10 10:00",closedAt:"2026-01-08 11:30"},
+  {n:"1600456",a:"The Iron Skillet",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on schedule.",openedAt:"2026-01-05 09:00",closedAt:"2026-02-14 14:00"},
+  {n:"1603789",a:"Blaze Pizza - Lincoln Park",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"Express",ag:0,bk:"",bksub:"",lu:"Express install.",openedAt:"2026-01-15 11:00",closedAt:"2026-02-03 13:00"},
+  {n:"1607012",a:"Pacific Rim Bistro",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Good install.",openedAt:"2026-02-01 09:30",closedAt:"2026-03-18 15:30"},
+  {n:"1610345",a:"Roots & Branches Cafe",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed.",openedAt:"2026-02-12 10:00",closedAt:"2026-03-05 12:00"},
+  {n:"1613678",a:"The Smoky Pig",s:"Implementation Complete",ss:"Installed",r:"Nick Hoffman",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"BBQ spot, install done.",openedAt:"2026-03-01 08:00",closedAt:"2026-04-08 14:00"},
+  {n:"1616901",a:"Harbor Lights Oyster Bar",s:"Implementation Complete",ss:"Installed",r:"Amanda Ramlow",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed on time.",openedAt:"2026-03-10 09:00",closedAt:"2026-04-22 11:30"},
+  {n:"1618234",a:"Zen Noodle House",s:"Implementation Complete",ss:"Installed",r:"Christie Marshall",p:"Express",ag:0,bk:"",bksub:"",lu:"Express.",openedAt:"2026-04-01 10:00",closedAt:"2026-04-24 13:00"},
+  {n:"1618901",a:"The Uptown Grille",s:"Implementation Complete",ss:"Installed",r:"Sabrina Tisdale",p:"SpotOn Restaurant",ag:0,bk:"",bksub:"",lu:"Installed this week.",openedAt:"2026-04-10 09:30",closedAt:"2026-04-30 16:00"},
+];
+
+// Compute SLA days for complete cases
+RAW.forEach(r => {
+  if (r.s === 'Implementation Complete' && r.openedAt && r.closedAt) {
+    const o = new Date(r.openedAt);
+    const c = new Date(r.closedAt);
+    r.sla = Math.round((c - o) / 86400000);
+  } else {
+    r.sla = null;
+  }
+});
+
+// ─── STATE ───────────────────────────────────────────────────────────────────
+let currentView = 'all';
+let sortCol = 'ag';
+let sortDir = 'desc';
+let page = 1;
+const PG = 25;
+let filtered = [];
+let workableFilter = 'all'; // 'all' | 'work' | 'nonwork'
+
+// ─── INIT ────────────────────────────────────────────────────────────────────
+function init() {
+  const openCases = RAW.filter(r => r.s !== 'Implementation Complete');
+  const completeCases = RAW.filter(r => r.s === 'Implementation Complete');
+
+  const total = openCases.length;
+  const nonwork = openCases.filter(r=>r.bk==='Non-Workable').length;
+  const sequential = openCases.filter(r=>r.bksub==='Sequential Expansion').length;
+  const unassigned = openCases.filter(r=>!r.r).length;
+  // Avg age: OPEN cases only (exclude implementation complete)
+  const avgAge = total ? Math.round(openCases.reduce((s,r)=>s+r.ag,0)/total) : 0;
+  const accounts = new Set(openCases.map(r=>r.a.replace(/ - .*/,'').trim())).size;
+
+  document.getElementById('kpi-total').textContent = total;
+  document.getElementById('kpi-nonwork').textContent = nonwork;
+  document.getElementById('kpi-sequential').textContent = sequential;
+  document.getElementById('kpi-unassigned').textContent = unassigned;
+  document.getElementById('kpi-avgage').textContent = avgAge;
+  document.getElementById('kpi-accounts').textContent = accounts;
+  document.getElementById('cnt-all').textContent = total;
+  document.getElementById('cnt-nonwork').textContent = nonwork;
+  document.getElementById('cnt-sequential').textContent = sequential;
+  document.getElementById('cnt-unassigned').textContent = unassigned;
+  document.getElementById('cnt-oldage').textContent = openCases.filter(r=>r.ag>=600).length;
+  document.getElementById('cnt-complete').textContent = completeCases.length;
+
+  // Charts: resource, status, backlog (open cases only)
+  const rMap = {};
+  openCases.forEach(r=>{const k=r.r||'(unassigned)';rMap[k]=(rMap[k]||0)+1});
+  const resources = Object.entries(rMap).sort((a,b)=>b[1]-a[1]);
+  const maxR = resources[0]?.[1]||1;
+  document.getElementById('resource-cnt').textContent = Object.keys(rMap).length;
+  document.getElementById('resource-rows').innerHTML = resources.map(([k,v])=>{
+    const pct = Math.round(v/total*100);
+    return `<div class="stat-row"><span class="stat-lbl">${k}</span><div class="bar-w"><div class="bar" style="width:${Math.round(v/maxR*100)}%"></div></div><span class="stat-n">${v}</span><span class="stat-p">${pct}%</span></div>`;
+  }).join('');
+
+  const sMap = {};
+  openCases.forEach(r=>{const k=r.s;sMap[k]=(sMap[k]||0)+1});
+  const statuses = Object.entries(sMap).sort((a,b)=>b[1]-a[1]);
+  const maxS = statuses[0]?.[1]||1;
+  document.getElementById('status-cnt').textContent = statuses.length;
+  document.getElementById('status-rows').innerHTML = statuses.map(([k,v])=>{
+    const pct = Math.round(v/total*100);
+    const cls = k==='Onboarding'?'':k==='Menu Build'?'green':k==='Menu Consultation'?'amber':'purple';
+    return `<div class="stat-row"><span class="stat-lbl">${k}</span><div class="bar-w"><div class="bar ${cls}" style="width:${Math.round(v/maxS*100)}%"></div></div><span class="stat-n">${v}</span><span class="stat-p">${pct}%</span></div>`;
+  }).join('');
+
+  const bkMap = {};
+  openCases.forEach(r=>{const k=r.bksub||'(none)';bkMap[k]=(bkMap[k]||0)+1});
+  const bklogs = Object.entries(bkMap).sort((a,b)=>b[1]-a[1]);
+  const maxB = bklogs[0]?.[1]||1;
+  document.getElementById('backlog-cnt').textContent = bklogs.length;
+  document.getElementById('backlog-rows').innerHTML = bklogs.map(([k,v])=>{
+    const pct = Math.round(v/total*100);
+    const cls = k==='(none)'?'green':k==='Sequential Expansion'?'amber':'red';
+    return `<div class="stat-row"><span class="stat-lbl">${k}</span><div class="bar-w"><div class="bar ${cls}" style="width:${Math.round(v/maxB*100)}%"></div></div><span class="stat-n">${v}</span><span class="stat-p">${pct}%</span></div>`;
+  }).join('');
+
+  // Populate filter dropdowns (open cases only)
+  const statusSel = document.getElementById('status-filter');
+  Object.keys(sMap).sort().forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;statusSel.appendChild(o)});
+
+  const resSel = document.getElementById('resource-filter');
+  Object.keys(rMap).sort().forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;resSel.appendChild(o)});
+
+  const bkSel = document.getElementById('backlog-filter');
+  const bkVals = [...new Set(openCases.map(r=>r.bk))].filter(Boolean).sort();
+  bkVals.forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=k;bkSel.appendChild(o)});
+
+  ['srch-input','status-filter','resource-filter','backlog-filter','age-filter'].forEach(id=>{
+    document.getElementById(id).addEventListener('input',applyFilters);
+    document.getElementById(id).addEventListener('change',applyFilters);
+  });
+
+  // SLA by month
+  buildSLA(completeCases);
+
+  applyFilters();
+}
+
+// ─── SLA BY MONTH ────────────────────────────────────────────────────────────
+function buildSLA(cases) {
+  const valid = cases.filter(r => r.sla !== null);
+  document.getElementById('sla-total-cnt').textContent = `${valid.length} sites`;
+
+  if (!valid.length) {
+    document.getElementById('sla-grid').innerHTML = '<div class="sla-empty">No implementation-complete cases with open and install dates.</div>';
+    return;
+  }
+
+  // Group by install month (closedAt)
+  const byMonth = {};
+  valid.forEach(r => {
+    const d = new Date(r.closedAt);
+    const key = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`;
+    if (!byMonth[key]) byMonth[key] = [];
+    byMonth[key].push(r.sla);
+  });
+
+  const months = Object.keys(byMonth).sort();
+  const allSLAs = valid.map(r=>r.sla);
+  const maxSLA = Math.max(...allSLAs);
+
+  const monthNames = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+  document.getElementById('sla-grid').innerHTML = months.map(key => {
+    const [yr, mo] = key.split('-');
+    const vals = byMonth[key];
+    const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
+    const lbl = `${monthNames[parseInt(mo)-1]} ${yr}`;
+    const cls = avg <= 60 ? 'good' : avg <= 120 ? 'warn' : 'bad';
+    const barPct = Math.round(avg / maxSLA * 100);
+    return `<div class="sla-month">
+      <div class="sla-month-lbl">${lbl}</div>
+      <div class="sla-days ${cls}">${avg}d</div>
+      <div class="sla-count">${vals.length} site${vals.length!==1?'s':''}</div>
+      <div class="sla-bar-row"><div class="sla-bar-w"><div class="sla-bar-fill ${cls}" style="width:${barPct}%"></div></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ─── WORKABLE TOGGLE ─────────────────────────────────────────────────────────
+function setWorkable(mode) {
+  workableFilter = mode;
+  document.getElementById('wb-all').className = 'workable-btn' + (mode==='all'?' active-all':'');
+  document.getElementById('wb-work').className = 'workable-btn' + (mode==='work'?' active-work':'');
+  document.getElementById('wb-nonwork').className = 'workable-btn' + (mode==='nonwork'?' active-nonwork':'');
+  applyFilters();
+}
+
+// ─── TABS ─────────────────────────────────────────────────────────────────────
+function switchTab(view) {
+  currentView = view;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.view===view));
+  const titles = {
+    all:'All open cases',
+    nonwork:'Non-workable — blocked or paused',
+    sequential:'Sequential expansion — waiting on prior location',
+    unassigned:'No resource assigned',
+    oldage:'Age 600+ days — long-running cases',
+    complete:'Implementation complete — installed sites'
+  };
+  document.getElementById('tbl-title').textContent = titles[view];
+  // Show SLA column only in complete view
+  const slaHdr = document.getElementById('sla-col-hdr');
+  slaHdr.style.display = view==='complete' ? '' : 'none';
+  page = 1;
+  applyFilters();
+}
+
+// ─── FILTERS ──────────────────────────────────────────────────────────────────
+function applyFilters() {
+  const srch = document.getElementById('srch-input').value.toLowerCase();
+  const status = document.getElementById('status-filter').value;
+  const resource = document.getElementById('resource-filter').value;
+  const backlog = document.getElementById('backlog-filter').value;
+  const ageMin = parseInt(document.getElementById('age-filter').value)||0;
+
+  filtered = RAW.filter(r=>{
+    // Tab filters
+    if (currentView==='complete' && r.s!=='Implementation Complete') return false;
+    if (currentView!=='complete' && r.s==='Implementation Complete') return false;
+    if (currentView==='nonwork' && r.bk!=='Non-Workable') return false;
+    if (currentView==='sequential' && r.bksub!=='Sequential Expansion') return false;
+    if (currentView==='unassigned' && r.r) return false;
+    if (currentView==='oldage' && r.ag<600) return false;
+
+    // Workable filter (applies to non-complete tabs)
+    if (currentView !== 'complete') {
+      if (workableFilter==='work' && r.bk==='Non-Workable') return false;
+      if (workableFilter==='nonwork' && r.bk!=='Non-Workable') return false;
+    }
+
+    if (srch && !`${r.n} ${r.a} ${r.r} ${r.s} ${r.bksub} ${r.lu}`.toLowerCase().includes(srch)) return false;
+    if (status && r.s!==status) return false;
+    if (resource && r.r!==resource) return false;
+    if (backlog && r.bk!==backlog) return false;
+    if (ageMin && r.ag<ageMin) return false;
+    return true;
+  });
+
+  document.getElementById('vis-cnt').textContent = `${filtered.length} cases`;
+  page = 1;
+  render();
+}
+
+// ─── SORT ─────────────────────────────────────────────────────────────────────
+function srt(col) {
+  if (sortCol===col) {sortDir=sortDir==='asc'?'desc':'asc';}
+  else {sortCol=col;sortDir=col==='ag'||col==='sla'?'desc':'asc';}
+  document.querySelectorAll('thead th').forEach(th=>{
+    th.classList.remove('sorted');
+    const arr=th.querySelector('span');if(arr)arr.textContent='↕';
+  });
+  const active=document.querySelector(`[data-c="${col}"]`);
+  if(active){active.classList.add('sorted');const arr=active.querySelector('span');if(arr)arr.textContent=sortDir==='asc'?'↑':'↓';}
+  render();
+}
+
+// ─── BADGES ───────────────────────────────────────────────────────────────────
+function statusBadgeCls(s) {
+  if(s==='Onboarding') return 'b-onboarding';
+  if(s==='Menu Build') return 'b-menubuild';
+  if(s==='Menu Consultation') return 'b-menuconsult';
+  if(s==='Pre-Install Verification') return 'b-preverify';
+  if(s==='Implementation Complete') return 'b-implcomplete';
+  return 'b-other';
+}
+
+function fmtDate(dt) {
+  if (!dt) return '<span style="color:var(--muted)">—</span>';
+  const d = new Date(dt);
+  if (isNaN(d)) return dt;
+  return d.toLocaleString('en-US',{month:'short',day:'numeric',year:'numeric',hour:'numeric',minute:'2-digit',hour12:true});
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  const sorted = [...filtered].sort((a,b)=>{
+    let va=a[sortCol],vb=b[sortCol];
+    if(sortCol==='ag'||sortCol==='sla'){va=Number(va??-1);vb=Number(vb??-1);}
+    else if(sortCol==='openedAt'||sortCol==='closedAt'){va=va?new Date(va).getTime():0;vb=vb?new Date(vb).getTime():0;}
+    else{va=String(va||'').toLowerCase();vb=String(vb||'').toLowerCase();}
+    if(va<vb) return sortDir==='asc'?-1:1;
+    if(va>vb) return sortDir==='asc'?1:-1;
+    return 0;
+  });
+
+  const total = sorted.length;
+  const pages = Math.max(1,Math.ceil(total/PG));
+  if(page>pages) page=pages;
+  const st=(page-1)*PG;
+  const sl=sorted.slice(st,st+PG);
+
+  document.getElementById('pg-info').textContent=total===0?'No results':`Showing ${st+1}–${Math.min(st+PG,total)} of ${total}`;
+
+  const tbody=document.getElementById('tbody');
+  const noRes=document.getElementById('no-res');
+  if(!total){tbody.innerHTML='';noRes.style.display='block';return;}
+  noRes.style.display='none';
+
+  const showSLA = currentView === 'complete';
+
+  tbody.innerHTML=sl.map(r=>{
+    const isComplete = r.s==='Implementation Complete';
+    const rowCls = isComplete?'row-complete':(r.bk==='Non-Workable'?'row-nonwork':(!r.bk?'row-active':''));
+    const ageCls = r.ag>=700?'age-90':r.ag>=500?'age-60':'';
+    const bkHtml = r.bk?`<span class="bk-badge ${r.bk==='Non-Workable'?'bk-nonwork':'bk-work'}">${r.bk}</span>`:'<span style="color:var(--muted)">—</span>';
+    const slaCls = r.sla===null?'':r.sla<=60?'good':r.sla<=120?'warn':'bad';
+    const slaCell = showSLA ? `<td><span class="sla-cell ${slaCls}">${r.sla!==null?r.sla+'d':'—'}</span></td>` : '';
+    return `<tr class="${rowCls}">
+      <td class="case-td">${r.n}</td>
+      <td class="acct-td" title="${r.a}">${r.a}</td>
+      <td><span class="badge ${statusBadgeCls(r.s)}">${r.s}</span></td>
+      <td title="${r.ss}">${r.ss||'<span style="color:var(--muted)">—</span>'}</td>
+      <td>${r.r||'<span style="color:#dc2626;font-weight:500;font-size:11px">Unassigned</span>'}</td>
+      <td>${r.p}</td>
+      <td>${isComplete?'<span style="color:var(--muted)">—</span>':`<span class="age-cell ${ageCls}">${r.ag}</span>`}</td>
+      <td>${bkHtml}</td>
+      <td title="${r.bksub}">${r.bksub||'<span style="color:var(--muted)">—</span>'}</td>
+      <td class="date-td">${fmtDate(r.openedAt)}</td>
+      <td class="date-td">${fmtDate(r.closedAt)}</td>
+      ${slaCell}
+      <td class="comment-td" title="${r.lu}">${r.lu?r.lu.substring(0,70)+(r.lu.length>70?'…':''):'<span style="color:var(--muted)">—</span>'}</td>
+    </tr>`;
+  }).join('');
+
+  // Pagination
+  const pgC=document.getElementById('pg-btns');
+  pgC.innerHTML='';
+  const addBtn=(lbl,pg,active=false,dis=false)=>{
+    const b=document.createElement('button');
+    b.className='pg-btn'+(active?' active':'');
+    b.textContent=lbl;b.disabled=dis;
+    b.onclick=()=>{page=pg;render();};
+    pgC.appendChild(b);
+  };
+  addBtn('←',page-1,false,page===1);
+  for(let p=Math.max(1,page-2);p<=Math.min(pages,page+2);p++) addBtn(p,p,p===page);
+  addBtn('→',page+1,false,page===pages);
+}
+
+// ─── EXPORT ───────────────────────────────────────────────────────────────────
+function exportCSV(){
+  const h=['Case #','Account','Status','Sub-Status','Resource','Plan','Age (Days)','Backlog Status','Backlog Sub-Status','Date/Time Opened','Date/Time Closed','SLA Days','Latest Comment'];
+  const rows=filtered.map(r=>[r.n,`"${r.a}"`,r.s,`"${r.ss}"`,`"${r.r}"`,r.p,r.ag,r.bk,r.bksub,r.openedAt,r.closedAt,r.sla??'',`"${(r.lu||'').replace(/"/g,"'")}"`]);
+  const csv=[h.join(','),...rows.map(r=>r.join(','))].join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+  a.download=`onboarding_${currentView}_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+init();
+</script>
+</body>
+</html>
